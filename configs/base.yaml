@@ -1,0 +1,36 @@
+paths:
+  raw_dir: data/raw/fannie
+  parquet_dir: data/parquet/fannie
+  external_dir: data/external
+  panel_dir: data/panel
+  models_dir: artifacts/models
+  figures_dir: artifacts/figures
+  tables_dir: artifacts/tables
+
+sample:
+  # deterministic hash sampling; per-stratum (vintage_year x rate bucket) target
+  loans_per_stratum: 20000      # keep_frac = min(1, target/stratum_size); loan_weight = 1/keep_frac
+  nonevent_keep_pct: 5          # % of y=0 loan-months kept; downsample weight = 100/nonevent_keep_pct
+  rate_bucket_edges: [0.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 99.0]
+
+regimes:
+  normal:    ["2014-01", "2019-12"]
+  refi_wave: ["2020-04", "2021-12"]
+  lockin:    ["2022-07", "2026-12"]   # skip H1-2022 transition months
+
+panel:
+  first_vintage_year: 2013
+  min_perf_month: "2014-01"
+
+eval:
+  train_ends: ["2018-12", "2019-12", "2020-12", "2021-12", "2022-12", "2023-12", "2024-12"]
+  horizon_months: 12
+  frozen_train_end: "2021-12"
+
+models:
+  gbm:
+    num_leaves: 63
+    learning_rate: 0.05
+    n_estimators: 2000
+    early_stopping_rounds: 100
+    seed: 20260706

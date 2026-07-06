@@ -1,0 +1,43 @@
+Source of configs/fannie_layout.csv (Fannie Mae Single-Family Loan Performance
+Data column order, file order, 113 fields)
+
+Primary source (field names, positions 1-110):
+  Fannie Mae's own R ingestion script `LPPUB_Infile.R`, which defines the
+  ordered `lppub_column_names` vector used to read the pipe-delimited
+  quarterly files with `data.table::fread(..., col.names = lppub_column_names)`.
+  Downloaded from:
+    https://capitalmarkets.fanniemae.com/media/document/zip/FNMA_SF_Loan_Performance_r_Primary.zip
+  linked from the Fannie Mae Single-Family Loan Performance Data page:
+    https://capitalmarkets.fanniemae.com/credit-risk-transfer/single-family-credit-risk-transfer/fannie-mae-single-family-loan-performance-data
+  Saved locally at data/raw/fannie/FNMA_SF_Loan_Performance_r_Primary.zip
+  (extracted to data/raw/fannie/r_primary_extract/).
+  Note: this script's header comment says it covers files through 2023Q4
+  (110 fields) -- it has not been updated since Fannie's most recent layout
+  expansion.
+
+Cross-check / source for positions 111-113 (3 fields added since the R
+script was last published):
+  Fannie Mae's "CRT File Layout and Glossary" workbook, sheet "Combined
+  Glossary", columns "Field Position" and "Field Name" (this sheet gives the
+  master field order shared by CAS/CIRT/SF Loan Performance disclosures;
+  positions 1-110 were confirmed to correspond 1:1, in order, with the R
+  script's 110 codes). Downloaded from:
+    https://capitalmarkets.fanniemae.com/resources/file/credit-risk/xls/crt-file-layout-and-glossary.xlsx
+  Saved locally at data/raw/fannie/crt-file-layout-and-glossary.xlsx.
+  Positions 111-113 in that sheet are "Origination Classic FICO(R)",
+  "Issuance Classic FICO(R)", "Current Classic FICO(R)", each noted as
+  "Populated starting with the December 2025 activity period." These have
+  no established Fannie short code (the R script predates them), so we
+  derived ORIGINATION_CLASSIC_FICO / ISSUANCE_CLASSIC_FICO /
+  CURRENT_CLASSIC_FICO from the descriptive names, following Fannie's own
+  SNAKE_CASE convention for newer fields (e.g. PAYMENT_DEFERRAL_MOD_EVENT_FLAG).
+  None of the 30 KEEP columns fall in this range, so this naming choice does
+  not affect the kept-column schema.
+
+Ground truth: field count in configs/fannie_layout.csv (113) was verified to
+exactly match the pipe count of the first data line in 2018Q1.zip, 2020Q1.zip,
+2022Q1.zip, 2024Q1.zip, 2024Q4.zip, and 2025Q4.zip (all 113 fields) -- see
+scripts/make_layout.py docstring and the Task 3 report for the check command.
+
+All 30 names in scurve.schema.KEEP matched this official layout's short
+codes exactly on first attempt; no renames were required.

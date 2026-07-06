@@ -2,6 +2,7 @@
 python scripts/run_ingest.py            # all zips in raw_dir not yet ingested
 python scripts/run_ingest.py 2023Q3 2023Q4
 """
+import re
 import sys
 
 from scurve.config import REPO_ROOT, load_config
@@ -13,7 +14,8 @@ if __name__ == "__main__":
     raw, pq = cfg["paths"]["raw_dir"], cfg["paths"]["parquet_dir"]
     layout = load_layout(REPO_ROOT / "configs" / "fannie_layout.csv")
     wanted = sys.argv[1:] or None
-    zips = sorted(raw.glob("*.zip"))
+    zips = sorted(z for z in raw.glob("*.zip")
+                  if re.fullmatch(r"\d{4}Q[1-4]", z.stem))
     for z in zips:
         if wanted and z.stem not in wanted:
             continue

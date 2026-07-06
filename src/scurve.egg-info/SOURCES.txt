@@ -1,9 +1,0 @@
-pyproject.toml
-src/scurve/__init__.py
-src/scurve/config.py
-src/scurve.egg-info/PKG-INFO
-src/scurve.egg-info/SOURCES.txt
-src/scurve.egg-info/dependency_links.txt
-src/scurve.egg-info/requires.txt
-src/scurve.egg-info/top_level.txt
-tests/test_config.py

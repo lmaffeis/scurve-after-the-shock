@@ -1,0 +1,257 @@
+{
+  "as_of": "2025-12",
+  "rows": [
+    {
+      "shift_bps": -150,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.0,
+      "smm": 0.024660874414732543,
+      "cpr": 0.2589154578051599
+    },
+    {
+      "shift_bps": -150,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.5,
+      "smm": 0.0365088019780196,
+      "cpr": 0.36001025044942714
+    },
+    {
+      "shift_bps": -150,
+      "vintage_year": 2023,
+      "coupon_bucket": 7.0,
+      "smm": 0.05936150217566308,
+      "cpr": 0.5201859162431208
+    },
+    {
+      "shift_bps": -150,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.0,
+      "smm": 0.02494460994784569,
+      "cpr": 0.26149838596637653
+    },
+    {
+      "shift_bps": -150,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.5,
+      "smm": 0.0444963905099312,
+      "cpr": 0.42085410325631456
+    },
+    {
+      "shift_bps": -150,
+      "vintage_year": 2024,
+      "coupon_bucket": 7.0,
+      "smm": 0.059610986182458164,
+      "cpr": 0.5217108141452473
+    },
+    {
+      "shift_bps": -100,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.0,
+      "smm": 0.01911705429598082,
+      "cpr": 0.2067570811099798
+    },
+    {
+      "shift_bps": -100,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.5,
+      "smm": 0.02817555501568048,
+      "cpr": 0.2903342794065684
+    },
+    {
+      "shift_bps": -100,
+      "vintage_year": 2023,
+      "coupon_bucket": 7.0,
+      "smm": 0.04436316432800336,
+      "cpr": 0.4198843537823368
+    },
+    {
+      "shift_bps": -100,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.0,
+      "smm": 0.017762689795027424,
+      "cpr": 0.19351346474218611
+    },
+    {
+      "shift_bps": -100,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.5,
+      "smm": 0.032147293297146405,
+      "cpr": 0.3243664186819355
+    },
+    {
+      "shift_bps": -100,
+      "vintage_year": 2024,
+      "coupon_bucket": 7.0,
+      "smm": 0.04654915937051637,
+      "cpr": 0.4356095300188805
+    },
+    {
+      "shift_bps": -50,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.0,
+      "smm": 0.011450794350634506,
+      "cpr": 0.12907752602315103
+    },
+    {
+      "shift_bps": -50,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.5,
+      "smm": 0.02102078071253744,
+      "cpr": 0.22503573296503843
+    },
+    {
+      "shift_bps": -50,
+      "vintage_year": 2023,
+      "coupon_bucket": 7.0,
+      "smm": 0.0344995979117449,
+      "cpr": 0.3438101509659661
+    },
+    {
+      "shift_bps": -50,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.0,
+      "smm": 0.010696002468539086,
+      "cpr": 0.1210641729414289
+    },
+    {
+      "shift_bps": -50,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.5,
+      "smm": 0.021546692862459704,
+      "cpr": 0.23001677125274178
+    },
+    {
+      "shift_bps": -50,
+      "vintage_year": 2024,
+      "coupon_bucket": 7.0,
+      "smm": 0.03582159790022563,
+      "cpr": 0.3545110871451781
+    },
+    {
+      "shift_bps": 0,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.0,
+      "smm": 0.005906615055866925,
+      "cpr": 0.06862150465658723
+    },
+    {
+      "shift_bps": 0,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.5,
+      "smm": 0.011590915979750033,
+      "cpr": 0.1305577556211387
+    },
+    {
+      "shift_bps": 0,
+      "vintage_year": 2023,
+      "coupon_bucket": 7.0,
+      "smm": 0.024152613295844297,
+      "cpr": 0.2542678940120834
+    },
+    {
+      "shift_bps": 0,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.0,
+      "smm": 0.005551136191061865,
+      "cpr": 0.06461700389970593
+    },
+    {
+      "shift_bps": 0,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.5,
+      "smm": 0.011852143832971488,
+      "cpr": 0.1333111824719696
+    },
+    {
+      "shift_bps": 0,
+      "vintage_year": 2024,
+      "coupon_bucket": 7.0,
+      "smm": 0.024195058171765132,
+      "cpr": 0.25465703193888267
+    },
+    {
+      "shift_bps": 50,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.0,
+      "smm": 0.004844568901705436,
+      "cpr": 0.05661056058658809
+    },
+    {
+      "shift_bps": 50,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.5,
+      "smm": 0.006168537417438132,
+      "cpr": 0.07156202096779596
+    },
+    {
+      "shift_bps": 50,
+      "vintage_year": 2023,
+      "coupon_bucket": 7.0,
+      "smm": 0.012136775787460205,
+      "cpr": 0.13630219508810526
+    },
+    {
+      "shift_bps": 50,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.0,
+      "smm": 0.004309407082089348,
+      "cpr": 0.050504636729227004
+    },
+    {
+      "shift_bps": 50,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.5,
+      "smm": 0.005835506018312798,
+      "cpr": 0.06782171471531573
+    },
+    {
+      "shift_bps": 50,
+      "vintage_year": 2024,
+      "coupon_bucket": 7.0,
+      "smm": 0.011706063016170987,
+      "cpr": 0.1317724297220798
+    },
+    {
+      "shift_bps": 100,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.0,
+      "smm": 0.004023284406333234,
+      "cpr": 0.04722528137859916
+    },
+    {
+      "shift_bps": 100,
+      "vintage_year": 2023,
+      "coupon_bucket": 6.5,
+      "smm": 0.0052920606936364255,
+      "cpr": 0.0616885594960479
+    },
+    {
+      "shift_bps": 100,
+      "vintage_year": 2023,
+      "coupon_bucket": 7.0,
+      "smm": 0.007104475728968613,
+      "cpr": 0.08200009535989417
+    },
+    {
+      "shift_bps": 100,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.0,
+      "smm": 0.0034293289263157534,
+      "cpr": 0.04038457201854373
+    },
+    {
+      "shift_bps": 100,
+      "vintage_year": 2024,
+      "coupon_bucket": 6.5,
+      "smm": 0.004864900104568554,
+      "cpr": 0.05684181797307053
+    },
+    {
+      "shift_bps": 100,
+      "vintage_year": 2024,
+      "coupon_bucket": 7.0,
+      "smm": 0.006501791730444275,
+      "cpr": 0.07529105527705948
+    }
+  ]
+}

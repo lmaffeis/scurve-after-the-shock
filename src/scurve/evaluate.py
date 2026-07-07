@@ -42,7 +42,11 @@ def cpr_error_table(preds: pl.DataFrame, actuals: pl.DataFrame) -> pl.DataFrame:
 
 
 def upb_weighted_mae(err: pl.DataFrame) -> float:
-    """UPB-weighted mean absolute CPR error, in CPR points (x100)."""
+    """UPB-weighted mean absolute CPR error, in CPR points (x100).
+
+    Non-finite errors (cohort-months with zero predicted UPB mass in the
+    sample) are excluded rather than poisoning the aggregate."""
     w = err["begin_upb"].to_numpy()
     e = np.abs(err["cpr_error"].to_numpy())
-    return float(100 * (e * w).sum() / w.sum())
+    ok = np.isfinite(e) & np.isfinite(w)
+    return float(100 * (e[ok] * w[ok]).sum() / w[ok].sum())

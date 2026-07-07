@@ -1,6 +1,25 @@
 import polars as pl
 
-from scurve.panel import define_event, downsample_nonevents
+from scurve.panel import define_event, downsample_nonevents, upb_entering
+
+
+def test_upb_entering_no_zero_leak_at_event():
+    """Regression: at the removal month CURRENT_UPB=0; the entering balance
+    must be the prior month's balance, never 0 (0 would leak the event)."""
+    df = pl.DataFrame({
+        "loan_id":  ["A", "A", "A", "B"],
+        "month":    ["2023-07", "2023-08", "2023-09", "2023-07"],
+        "curr_upb": [100_000.0, 99_000.0, 0.0, 200_000.0],
+        "last_upb": [0.0, 0.0, 98_500.0, 0.0],
+        "orig_upb": [110_000.0, 110_000.0, 110_000.0, 200_000.0],
+    }).sort(["loan_id", "month"])
+    out = df.with_columns(upb_entering())
+    vals = out["upb_entering"].to_list()
+    assert vals[0] == 100_000.0   # A first month -> reported balance fallback
+    assert vals[1] == 100_000.0   # lag
+    assert vals[2] == 99_000.0    # event month -> PRIOR balance, not 0
+    assert vals[3] == 200_000.0   # B first month, curr_upb>0 fallback
+    assert all(v > 0 for v in vals)  # never zero anywhere
 
 
 def test_define_event_marks_zb01_only():

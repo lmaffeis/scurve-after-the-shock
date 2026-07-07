@@ -13,6 +13,23 @@ def define_event() -> pl.Expr:
         .cast(pl.Int8).alias("y")
 
 
+def upb_entering() -> pl.Expr:
+    """Balance ENTERING the month (factor-date convention).
+
+    Fannie reports CURRENT_UPB = 0 on the removal record, so end-of-period
+    balance leaks the event (mtm_ltv would be exactly 0 iff prepaid) and
+    zero-weights event rows in cohort aggregation. Use the previous month's
+    balance; fall back to LAST_UPB (populated on removal records), then the
+    reported balance, then ORIG_UPB for a loan's first observation.
+    Requires frame sorted by (loan_id, month)."""
+    return pl.coalesce([
+        pl.col("curr_upb").shift(1).over("loan_id"),
+        pl.when(pl.col("last_upb") > 0).then(pl.col("last_upb")),
+        pl.when(pl.col("curr_upb") > 0).then(pl.col("curr_upb")),
+        pl.col("orig_upb"),
+    ]).alias("upb_entering")
+
+
 def downsample_nonevents(df: pl.DataFrame, keep_pct: int) -> pl.DataFrame:
     """Keep all y=1 rows; keep ~keep_pct% of y=0 rows deterministically.
 
@@ -50,6 +67,7 @@ def canonical_quarter(parquet_path: Path, sampled_ids: pl.DataFrame,
                TRY_CAST(p.OLTV AS DOUBLE) AS oltv,
                TRY_CAST(p.DTI AS DOUBLE) AS dti,
                TRY_CAST(p.CSCORE_B AS DOUBLE) AS cscore_b,
+               COALESCE(TRY_CAST(p.LAST_UPB AS DOUBLE), 0) AS last_upb,
                p.CHANNEL AS channel, p.PURPOSE AS purpose, p.PROP AS prop,
                p.OCC_STAT AS occ_stat, p.STATE AS state,
                p.NUM_BO AS num_bo, p.FIRST_FLAG AS first_flag,
@@ -71,6 +89,10 @@ def canonical_quarter(parquet_path: Path, sampled_ids: pl.DataFrame,
                 on=["state", "orig_month"], how="left")
           .sort(["loan_id", "month"])
     )
+    # replace end-of-period balance with balance entering the month BEFORE any
+    # feature uses it — see upb_entering() docstring (leakage guard)
+    df = df.with_columns(upb_entering()).drop("curr_upb") \
+           .rename({"upb_entering": "curr_upb"})
     df = df.with_columns(
         F.add_incentive(), F.add_sato(), F.add_mtm_ltv(),
         F.add_month_of_year(), F.dlq_bucket(),

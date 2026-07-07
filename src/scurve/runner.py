@@ -53,10 +53,11 @@ def run_walk_forward(panel_glob: str, cfg: dict, actuals: pl.DataFrame,
             if te.is_empty():
                 continue
             model = make_model(name, cfg)
-            # last 12 train months as early-stopping validation for GBM
-            if name == "gbm":
-                val_start = month_add(train_end, -11)
-                mask = (tr["month"] >= val_start).to_numpy()
+            # last 12 train months as early-stopping validation for GBM —
+            # only if enough earlier history remains to train on
+            val_start = month_add(train_end, -11)
+            mask = (tr["month"] >= val_start).to_numpy()
+            if name == "gbm" and (~mask).sum() > 0 and len(set(ytr[~mask])) == 2:
                 model.fit(tr.filter(~pl.Series(mask)), ytr[~mask], wtr[~mask],
                           tr.filter(pl.Series(mask)), ytr[mask], wtr[mask])
             else:

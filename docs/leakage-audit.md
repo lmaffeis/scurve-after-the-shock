@@ -8,7 +8,7 @@ The target `y` is the voluntary prepayment event (Zero_Bal_Code == "01") **in** 
 | `incentive_bps` | (note rate − PMMS30 at *t*) × 100 | PMMS is a weekly survey observable intra-month; monthly average used. Borderline by a few weeks; acceptable for a monthly hazard and disclosed in the writeup. |
 | `sato_bps` | (note rate − PMMS30 at origination month) × 100 | Fixed at origination. |
 | `burnout_bps` | Σ over months *s* < *t* of max(incentive_s, 0) | Explicitly lagged: `cum_sum().shift(1)` per loan (see `features.add_burnout`); month *t*'s own incentive excluded. |
-| `mtm_ltv` | OLTV × (UPB_t / UPB_0) ÷ (HPI_t / HPI_orig) | UPB_t is the reported balance entering the month; HPI is interpolated from quarterly index published with a lag — in production this would use lagged HPI; for research the interpolation uses the quarter containing *t*, disclosed as a limitation. |
+| `mtm_ltv` | OLTV × (UPB_entering / UPB_0) ÷ (HPI_t / HPI_orig) | UPB_entering is the balance **entering** the month (prior month's reported balance; see `panel.upb_entering`). Using the end-of-period balance would be a hard leak: Fannie reports CURRENT_UPB = 0 on the removal record, making LTV = 0 a perfect event predictor (caught in training — frozen AUC 0.99998 — and fixed; regression-tested in `test_upb_entering_no_zero_leak_at_event`). HPI is interpolated from the quarterly index published with a lag; disclosed as a limitation. |
 | `loan_age` | Reported LOAN_AGE at *t* | Deterministic. |
 | `orig_upb_log`, `cscore_b`, `dti`, `oltv` | Origination attributes | Fixed at origination. |
 | `month_of_year` | Calendar | Deterministic. |

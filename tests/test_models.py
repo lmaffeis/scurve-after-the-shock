@@ -22,6 +22,7 @@ def _synthetic(n=20_000, seed=7):
         "dti": rng.uniform(10, 50, n),
         "oltv": rng.uniform(40, 97, n),
         "month_of_year": rng.integers(1, 13, n),
+        "pmms30": rng.uniform(2.5, 7.5, n),
         "channel": rng.choice(["R", "C", "B"], n),
         "purpose": rng.choice(["P", "C", "R"], n),
         "prop": rng.choice(["SF", "PU", "CO"], n),

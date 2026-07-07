@@ -31,6 +31,8 @@ models:
   gbm:
     num_leaves: 63
     learning_rate: 0.05
-    n_estimators: 2000
-    early_stopping_rounds: 100
+    n_estimators: 600          # fixed capacity: early stopping on a trailing
+    early_stopping_rounds: null # window underfits badly across regime shifts
+    min_child_samples: 100
+    feature_fraction: 0.9
     seed: 20260706

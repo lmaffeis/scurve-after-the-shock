@@ -13,6 +13,8 @@ class GBMHazard:
             num_leaves=params["num_leaves"],
             learning_rate=params["learning_rate"],
             n_estimators=params["n_estimators"],
+            min_child_samples=params.get("min_child_samples", 20),
+            colsample_bytree=params.get("feature_fraction", 1.0),
             random_state=params["seed"],
             n_jobs=-1,
             verbose=-1,

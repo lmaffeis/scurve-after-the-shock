@@ -57,6 +57,9 @@ def dlq_bucket() -> pl.Expr:
 NUMERIC_FEATURES = [
     "incentive_bps", "sato_bps", "burnout_bps", "mtm_ltv", "loan_age",
     "orig_upb_log", "cscore_b", "dti", "oltv", "month_of_year",
+    # market rate LEVEL: conditional on incentive, high prevailing rates
+    # suppress turnover (lock-in) — the desk-standard turnover driver
+    "pmms30",
 ]
 CATEGORICAL_FEATURES = [
     "channel", "purpose", "prop", "occ_stat", "state", "num_bo_capped",

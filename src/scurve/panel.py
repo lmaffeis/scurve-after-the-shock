@@ -93,6 +93,13 @@ def canonical_quarter(parquet_path: Path, sampled_ids: pl.DataFrame,
     # feature uses it — see upb_entering() docstring (leakage guard)
     df = df.with_columns(upb_entering()).drop("curr_upb") \
            .rename({"upb_entering": "curr_upb"})
+    # monthly-reported STATE fields are blanked on the removal record, so
+    # their null-ness would flag the event; use state entering the month
+    # (previous month's report), like the balance
+    df = df.with_columns(
+        pl.col("DLQ_STATUS").shift(1).over("loan_id").fill_null("00"),
+        pl.col("mod_flag").shift(1).over("loan_id").fill_null("N"),
+    )
     df = df.with_columns(
         F.add_incentive(), F.add_sato(), F.add_mtm_ltv(),
         F.add_month_of_year(), F.dlq_bucket(),

@@ -22,6 +22,26 @@ def test_upb_entering_no_zero_leak_at_event():
     assert all(v > 0 for v in vals)  # never zero anywhere
 
 
+def test_state_fields_are_lagged_no_null_leak():
+    """Regression: Fannie blanks MOD_FLAG/DLQ_STATUS on the removal record;
+    unlagged, their null-ness perfectly flags the event (found as AUC=0.9999).
+    The panel must carry the PRIOR month's state instead."""
+    df = pl.DataFrame({
+        "loan_id":    ["A", "A", "A"],
+        "month":      ["2023-07", "2023-08", "2023-09"],
+        "DLQ_STATUS": ["00", "01", None],     # removal record blank
+        "mod_flag":   ["N", "N", None],
+    }).sort(["loan_id", "month"])
+    out = df.with_columns(
+        pl.col("DLQ_STATUS").shift(1).over("loan_id").fill_null("00"),
+        pl.col("mod_flag").shift(1).over("loan_id").fill_null("N"),
+    )
+    assert out["DLQ_STATUS"].to_list() == ["00", "00", "01"]
+    assert out["mod_flag"].to_list() == ["N", "N", "N"]
+    assert out["DLQ_STATUS"].null_count() == 0
+    assert out["mod_flag"].null_count() == 0
+
+
 def test_define_event_marks_zb01_only():
     df = pl.DataFrame({
         "Zero_Bal_Code": ["", "01", "03", None],

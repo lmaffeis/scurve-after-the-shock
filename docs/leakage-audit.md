@@ -13,8 +13,8 @@ The target `y` is the voluntary prepayment event (Zero_Bal_Code == "01") **in** 
 | `orig_upb_log`, `cscore_b`, `dti`, `oltv` | Origination attributes | Fixed at origination. |
 | `month_of_year` | Calendar | Deterministic. |
 | `channel`, `purpose`, `prop`, `occ_stat`, `state`, `num_bo_capped`, `first_flag` | Origination attributes | Fixed at origination. |
-| `dlq_bucket` | Delinquency status reported at *t* | Status entering the month from servicer reporting. |
-| `mod_flag` | Modification flag at *t* | Reported state entering the month. |
+| `dlq_bucket` | Delinquency status **entering** *t* (lagged one month) | Fannie blanks DLQ_STATUS on the removal record, so the unlagged value's null-ness flags the event. Lagged in the panel builder; regression-tested (`test_state_fields_are_lagged_no_null_leak`). |
+| `mod_flag` | Modification flag **entering** *t* (lagged one month) | Same removal-record blanking — unlagged, "mod_flag is null" separated events at AUC 0.9999. Caught in training, fixed, regression-tested. |
 
 Structural guards:
 - The event month's row carries the features as reported **in that month's record**; Fannie's performance file reports the status/UPB for the period, with removal fields (LAST_UPB, Zero_Bal_Code) populated on the final record. We never join future months backward.

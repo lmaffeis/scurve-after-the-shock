@@ -1,0 +1,23 @@
+{
+  "2019-12": {
+    "auc": 0.748,
+    "n": 309813,
+    "cpr_mae_pts": 8.77,
+    "mean_pred_smm_pct": 1.637,
+    "actual_event_rate_pct": 2.288
+  },
+  "2021-12": {
+    "auc": 0.649,
+    "n": 316729,
+    "cpr_mae_pts": 4.63,
+    "mean_pred_smm_pct": 0.202,
+    "actual_event_rate_pct": 0.636
+  },
+  "2024-12": {
+    "auc": 0.64,
+    "n": 488757,
+    "cpr_mae_pts": 1.53,
+    "mean_pred_smm_pct": 0.487,
+    "actual_event_rate_pct": 0.538
+  }
+}

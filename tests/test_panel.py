@@ -22,6 +22,19 @@ def test_upb_entering_no_zero_leak_at_event():
     assert all(v > 0 for v in vals)  # never zero anywhere
 
 
+def test_computed_loan_age_never_null():
+    """Regression: reported LOAN_AGE is blanked on removal records (leak);
+    computed age from month strings is always populated."""
+    from scurve.panel import computed_loan_age
+    df = pl.DataFrame({
+        "month":      ["2023-07", "2023-08", "2024-01"],
+        "orig_month": ["2023-06", "2023-06", "2023-06"],
+    })
+    out = df.with_columns(computed_loan_age())
+    assert out["loan_age"].to_list() == [1, 2, 7]
+    assert out["loan_age"].null_count() == 0
+
+
 def test_state_fields_are_lagged_no_null_leak():
     """Regression: Fannie blanks MOD_FLAG/DLQ_STATUS on the removal record;
     unlagged, their null-ness perfectly flags the event (found as AUC=0.9999).

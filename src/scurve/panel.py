@@ -13,6 +13,19 @@ def define_event() -> pl.Expr:
         .cast(pl.Int8).alias("y")
 
 
+def computed_loan_age() -> pl.Expr:
+    """Age in months from origination — computed, not read from LOAN_AGE.
+
+    Fannie blanks LOAN_AGE on the removal record (like MOD_FLAG/DLQ_STATUS),
+    so the reported field's null-ness flags the event. Calendar arithmetic on
+    month strings can't be blanked."""
+    m = (pl.col("month").str.slice(0, 4).cast(pl.Int32) * 12
+         + pl.col("month").str.slice(5, 2).cast(pl.Int32))
+    o = (pl.col("orig_month").str.slice(0, 4).cast(pl.Int32) * 12
+         + pl.col("orig_month").str.slice(5, 2).cast(pl.Int32))
+    return (m - o).alias("loan_age")
+
+
 def upb_entering() -> pl.Expr:
     """Balance ENTERING the month (factor-date convention).
 
@@ -63,7 +76,8 @@ def canonical_quarter(parquet_path: Path, sampled_ids: pl.DataFrame,
                TRY_CAST(p.ORIG_RATE AS DOUBLE) AS orig_rate,
                TRY_CAST(p.ORIG_UPB AS DOUBLE) AS orig_upb,
                COALESCE(TRY_CAST(p.CURRENT_UPB AS DOUBLE), 0) AS curr_upb,
-               TRY_CAST(p.LOAN_AGE AS INTEGER) AS loan_age,
+               -- LOAN_AGE deliberately NOT selected: blanked on removal
+               -- records (leak); age is computed from orig_month instead
                TRY_CAST(p.OLTV AS DOUBLE) AS oltv,
                TRY_CAST(p.DTI AS DOUBLE) AS dti,
                TRY_CAST(p.CSCORE_B AS DOUBLE) AS cscore_b,
@@ -99,6 +113,7 @@ def canonical_quarter(parquet_path: Path, sampled_ids: pl.DataFrame,
     df = df.with_columns(
         pl.col("DLQ_STATUS").shift(1).over("loan_id").fill_null("00"),
         pl.col("mod_flag").shift(1).over("loan_id").fill_null("N"),
+        computed_loan_age(),
     )
     df = df.with_columns(
         F.add_incentive(), F.add_sato(), F.add_mtm_ltv(),

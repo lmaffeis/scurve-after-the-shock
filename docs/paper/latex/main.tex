@@ -74,8 +74,8 @@ does not address the model-side question that concerns fixed-income practitioner
 exactly changed in the prepayment function, and how should data-driven models be managed across
 such a break?}
 
-This paper provides, to our knowledge, the first public model-side treatment of the 2022 regime
-break estimated on open data. We construct a monthly discrete-time hazard panel from the Fannie
+This paper provides one of the first public model-side treatments of the 2022 regime break
+estimated on open data. We construct a monthly discrete-time hazard panel from the Fannie
 Mae Single-Family Loan Performance dataset (18.5 million loans, 2018--2025), estimate three
 classes of prepayment model of increasing flexibility under a strict walk-forward protocol, and
 evaluate them at two levels: loan-level discrimination and---the economically relevant
@@ -190,19 +190,50 @@ range, which we regard as the honest difficulty of monthly voluntary-prepayment 
 \section{Methodology}
 \label{sec:method}
 
-\subsection{Hazard framework}
+\subsection{Hazard framework and inverse-probability weighting}
+\label{sec:ipw}
 
 Let $y_{it} \in \{0,1\}$ indicate voluntary prepayment of loan $i$ in month $t$. We model the
 discrete-time hazard $h_{it} = \Pr(y_{it}=1 \mid x_{it})$, where $x_{it}$ contains only
-information available at the beginning of month $t$. Cohort-level speeds aggregate fitted hazards
-with combined sampling and balance weights: for cohort $c$ in month $t$,
+information available at the beginning of month $t$.
+
+The estimation panel is drawn from the population in two independent, deterministic stages, and
+every observation carries the inverse of its inclusion probability. Stage one samples
+\emph{loans}: within stratum $s(i)$ (vintage year $\times$ note-rate bucket), loan $i$ is
+included with probability $\pi_{s(i)} = \min\{1,\, \bar n / N_{s(i)}\}$, where $N_s$ is the
+stratum size and $\bar n$ the per-stratum target, implemented by a hash of the loan identifier
+(no random-number generator, hence exactly replicable). Stage two samples \emph{loan-months}:
+every event month ($y_{it}=1$) of a sampled loan is retained with probability one, while
+non-event months are retained with probability $\kappa = 0.05$, again by hashing. The combined
+design weight is therefore
+\begin{equation}
+w_{it} \;=\;
+\begin{cases}
+1/\pi_{s(i)}, & y_{it}=1,\\[2pt]
+1/\bigl(\pi_{s(i)}\,\kappa\bigr), & y_{it}=0 .
+\end{cases}
+\end{equation}
+For any population functional expressible as a sum over loan-months,
+$S = \sum_{it} z_{it}$, the weighted sample sum $\hat S = \sum_{it \in \mathcal{S}} w_{it}
+z_{it}$ is a Horvitz--Thompson estimator and is unbiased, since each term's inclusion
+probability is exactly $\pi_{s(i)}$ or $\pi_{s(i)}\kappa$ by construction. Two consequences
+follow. First, maximizing the $w$-weighted log-likelihood targets the population likelihood, so
+fitted hazards are calibrated to the population base rate---retaining all events while
+down-sampling non-events does \emph{not} require the usual post-hoc intercept correction for
+case-control sampling, because the weights already undo the design. Second, population
+cohort-level speeds are recovered by weighting fitted hazards with the product of design weight
+and beginning-of-month balance $b_{it}$: for cohort $c$ in month $t$,
 \begin{equation}
 \widehat{\mathrm{SMM}}_{ct} \;=\; \frac{\sum_{i \in c} w_{it}\, b_{it}\, \hat h_{it}}
 {\sum_{i \in c} w_{it}\, b_{it}}, \qquad
 \widehat{\mathrm{CPR}}_{ct} \;=\; 1 - \bigl(1 - \widehat{\mathrm{SMM}}_{ct}\bigr)^{12},
 \end{equation}
-where $w_{it}$ is the inverse-probability sampling weight and $b_{it}$ the balance entering the
-month.
+where numerator and denominator are each Horvitz--Thompson estimators of their population
+counterparts (expected voluntarily-prepaid balance and total beginning balance). Evaluation
+never relies on the sampled denominator where the population value is available: actual cohort
+CPRs are computed on the \emph{full} population of Section~3.2. Appendix~\ref{app:robustness}
+verifies empirically that results are insensitive to halving $\kappa$, and that fitted hazards
+are well calibrated against weighted empirical event rates.
 
 \subsection{Estimators}
 
@@ -280,11 +311,11 @@ subtler result concerns re-estimation. In 2023, the annually re-estimated model-
 through December 2022, including the transition---performs \emph{worse} than the frozen model:
 3.8 versus 2.3 CPR points of UPB-weighted error. Six months of partially transitioned data teach
 the model a speed level that is still too fast, while the frozen model's errors, though
-structural, are stable and partially offsetting. Re-estimation overtakes the frozen benchmark
-only in 2024 (2.6 versus 2.1) and wins decisively in 2025 (1.1 versus 2.4). The governance
-implication: after a structural break, immediate recalibration on the transition sample can be
-value-destroying; approximately two years of new-regime data were required before re-estimation
-dominated. This is consistent with the documented 2023--25 whipsaw in commercial model
+structural, are stable and partially offsetting. Re-estimation still trails the frozen
+benchmark in 2024 (2.6 versus 2.1 CPR points) and overtakes it only in 2025 (1.1 versus 2.4).
+The governance implication: after a structural break, immediate recalibration on the transition
+sample can be value-destroying; in this sample, roughly two and a half years of post-break data
+were required before re-estimation dominated the frozen legacy model. This is consistent with the documented 2023--25 whipsaw in commercial model
 performance \citep{katz2024models}.
 
 \begin{figure}[ht]
@@ -328,7 +359,10 @@ Lock-in 2022--25 & 8.9 & 11.7 & 30.5 & 12.6 \\
 \bottomrule
 \end{tabular}
 \caption{S-curve landmarks by regime on the common reference population. Elasticity is the
-average slope between 0 and $+150$ basis points of incentive.}
+average slope between 0 and $+150$ basis points of incentive. All entries are
+partial-dependence values: counterfactual model responses obtained by setting the incentive to
+the stated level for every observation in the fixed reference population. They are not realized
+cohort speeds and should not be compared directly to observed cohort CPRs (see text).}
 \label{tab:e2}
 \end{table}
 
@@ -341,7 +375,20 @@ episode and with the efficiency of modern origination channels. At the deep-disc
 lock-in model's implied turnover on the common population is close to pre-pandemic levels; the
 observed 2--4 CPR prints of deeply out-of-the-money cohorts are reproduced through the
 prevailing-rate-level covariate---the lock-in channel of \citet{batzer2024lockin}---rather than
-through a degraded incentive response. SATO-conditioned partial dependence (replication
+through a degraded incentive response.
+
+Two remarks prevent misreading of Table~\ref{tab:e2}. First, partial-dependence values at a
+given incentive are averages over the \emph{entire} reference population with only the incentive
+altered; all other covariates, including burnout, mark-to-market LTV, and the prevailing-rate
+level, retain their observed values. The population composition at, say, $-200$ basis points in
+the table therefore never occurs in any realized cohort, and the tabulated 8.9 CPR for the
+lock-in model at $-200$ basis points is not comparable to the 2--4 CPR prints of 2021-vintage
+2.5\% coupons: those cohorts sit at $-300$ to $-450$ basis points of incentive---at or beyond
+the left edge of the evaluated grid, where the curves are lower---and their suppressed turnover
+loads on the rate-level covariate rather than on the incentive itself. Second, because the
+reference population is fixed across regimes, \emph{differences} between curves are identified
+as differences in the learned response functions; \emph{levels} inherit the reference
+population's covariate mix and should be read only relative to one another. SATO-conditioned partial dependence (replication
 materials) confirms the composition mechanism of \citet{sancap2024scurves}: within every regime,
 higher-SATO tertiles trace steeper curves. The decomposition thus reconciles the composition
 view with the observation of \citet{katz2024models} that late-2025 realized S-curves exceed
@@ -403,7 +450,7 @@ replication materials.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Using open data and commodity hardware, we provide the first public model-side account of the
+Using open data and commodity hardware, we provide a public model-side account of the
 2022 mortgage prepayment regime break. The prepayment function did not merely shift: its
 refinancing limb steepened while its turnover component became governed by the prevailing-rate
 level, and the transition itself created a two-year window in which naive model re-estimation
@@ -416,5 +463,86 @@ public agency datasets: an out-of-sample AUC of 0.9999 is not a discovery.
 
 \bibliographystyle{apalike}
 \bibliography{references}
+
+\appendix
+
+\section{Robustness}
+\label{app:robustness}
+
+This appendix reports four checks on the empirical machinery. Unless stated otherwise, they use
+the gradient-boosted model estimated through December 2024 and evaluated on 2025, the split with
+the largest training window.
+
+\subsection{Calibration}
+
+Figure~\ref{fig:r1} plots, by decile of predicted hazard, the mean predicted monthly hazard
+against the design-weighted empirical event rate on the held-out year. The middle deciles lie on
+the diagonal; the model modestly under-predicts in the slowest deciles (e.g., 0.12\% predicted
+versus 0.16\% realized in the first decile) and over-predicts in the fastest decile (2.91\%
+versus 2.40\%). Fitted hazards are thus usable as levels, not merely as rankings, with mild
+attenuation at the fast tail.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/r1_calibration.png}
+\caption{Reliability diagram on the 2025 test year: mean predicted monthly hazard versus
+design-weighted empirical event rate, by predicted-hazard decile. Dashed line is the
+45-degree diagonal.}
+\label{fig:r1}
+\end{figure}
+
+\subsection{Cohort-level fit}
+
+Figure~\ref{fig:r2} plots predicted against actual CPR for the 754 vintage $\times$ coupon
+cohort-months (with beginning balance above \$1bn) of the 2025 test year; marker area is
+proportional to cohort balance. The UPB-weighted mean absolute error is 1.09 CPR points, with no
+visible systematic bias across the speed range.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/r2_cohort_scatter.png}
+\caption{Predicted versus actual cohort CPR, 2025 test year, vintage $\times$ coupon
+cohort-months with beginning UPB above \$1bn. Marker area proportional to cohort balance.}
+\label{fig:r2}
+\end{figure}
+
+\subsection{Sensitivity to the non-event sampling rate}
+
+The estimation panel retains non-event loan-months with probability $\kappa = 5\%$
+(Section~\ref{sec:ipw}). Re-estimating the December 2024 model after deterministically halving
+the retained non-events (an effective $\kappa$ of 2.5\%, weights doubled accordingly) leaves
+results essentially unchanged (Table~\ref{tab:kappa}), consistent with the Horvitz--Thompson
+argument: the downsampling rate affects efficiency, not identification.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Panel & Training rows & AUC (2025) & Cohort CPR MAE (pts) \\
+\midrule
+Baseline, $\kappa = 5\%$ & 2{,}037{,}093 & 0.691 & 0.86 \\
+Thinned, $\kappa = 2.5\%$ & 1{,}206{,}248 & 0.690 & 0.88 \\
+\bottomrule
+\end{tabular}
+\caption{Sensitivity of the December 2024 model to the non-event retention rate. Evaluation on
+all 2025 months.}
+\label{tab:kappa}
+\end{table}
+
+\subsection{S-curve robustness across SATO buckets}
+
+Figure~\ref{fig:r4} repeats the partial-dependence analysis of Section~\ref{sec:e2} within
+tertiles of spread at origination. The regime ordering of Section~\ref{sec:e2} is preserved
+within every tertile, and within every regime higher-SATO tertiles trace steeper curves ---
+the composition mechanism emphasized by \citet{sancap2024scurves} --- confirming that the
+S-curve rotation is not an artifact of pooling across SATO.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/e2_scurves_by_sato.png}
+\caption{Model-implied S-curves by regime and SATO tertile on the common reference population.}
+\label{fig:r4}
+\end{figure}
 
 \end{document}

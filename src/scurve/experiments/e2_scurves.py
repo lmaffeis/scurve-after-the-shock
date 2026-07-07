@@ -18,6 +18,11 @@ GRID = list(range(-300, 301, 25))
 REF_ROWS = 200_000
 SHAP_ROWS = 50_000
 
+# config keys -> reader-facing labels (figures only; JSON keeps config keys)
+DISPLAY = {"normal": "Pre-pandemic (2018-19)",
+           "refi_wave": "Refinancing wave (2020-21)",
+           "lockin": "Lock-in era (2022-25)"}
+
 
 def pdp_incentive(model, ref: pl.DataFrame, grid=GRID) -> pl.DataFrame:
     rows = []
@@ -56,7 +61,7 @@ def run_e2(cfg: dict) -> None:
         n_rows = df.shape[0]
         del df
 
-        pdp = pdp_incentive(model, ref).with_columns(pl.lit(name).alias("series"))
+        pdp = pdp_incentive(model, ref).with_columns(pl.lit(DISPLAY[name]).alias("series"))
         curves.append(pdp)
         for i, (lo, hi) in enumerate([(None, t1), (t1, t2), (t2, None)]):
             sub = ref
@@ -66,7 +71,7 @@ def run_e2(cfg: dict) -> None:
                 sub = sub.filter(pl.col("sato_bps") < hi)
             sato_curves.append(
                 pdp_incentive(model, sub)
-                .with_columns(pl.lit(f"{name} / SATO T{i + 1}").alias("series")))
+                .with_columns(pl.lit(f"{DISPLAY[name]} / SATO T{i + 1}").alias("series")))
 
         import shap
         expl = shap.TreeExplainer(model.model)
@@ -95,9 +100,9 @@ def run_e2(cfg: dict) -> None:
              fig_dir, "e2_scurves_by_sato")
 
     top = sorted(shap_summaries["lockin"], key=shap_summaries["lockin"].get)[-10:]
-    fig = grouped_barh(top, {name: [s[c] for c in top]
+    fig = grouped_barh(top, {DISPLAY[name]: [s[c] for c in top]
                              for name, s in shap_summaries.items()},
-                       "What drives prepayment, by regime",
+                       "Prepayment drivers by regime",
                        "mean |SHAP| (hazard scale)")
     save_fig(fig, fig_dir, "e2_shap")
 

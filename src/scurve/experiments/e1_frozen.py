@@ -56,7 +56,7 @@ def run_e1(cfg: dict, actuals: pl.DataFrame) -> None:
         ru.select("month", pl.col("pred_cpr").alias("value"))
           .with_columns(pl.lit("Retrained annually").alias("series")),
     ]).with_columns(pl.col("value") * 100)
-    fig = error_timeseries(chart, "Aggregate CPR: the model that didn't see it coming")
+    fig = error_timeseries(chart, "Aggregate CPR forecasts around the 2022 regime break")
     save_fig(fig, fig_dir, "e1_frozen_vs_retrained")
 
     by_year = {}

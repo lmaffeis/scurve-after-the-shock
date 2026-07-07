@@ -19,18 +19,20 @@ changed after the 2022 rate shock — and what that implies for today's coupon s
 
 Runs on an 8GB laptop + free Kaggle GPU. Total data footprint ~25GB.
 
-```
+```powershell
 # 0. Register (free) at https://datadynamics.fanniemae.com and download
 #    quarterly zips (2018Q1+) into data/raw/fannie/
-py -3.11 -m venv .venv && .venv\Scripts\pip install -e .[dev]
+py -3.11 -m venv .venv
+.venv\Scripts\pip install -e .[dev]
 .venv\Scripts\python scripts/run_external.py      # PMMS + FHFA HPI (public APIs)
-.venv\Scripts\python scripts/make_layout.py <layout.xlsx>
+.venv\Scripts\python scripts/make_layout.py "data/raw/fannie/<layout-file>.xlsx"
 .venv\Scripts\python scripts/run_ingest.py        # raw -> parquet, 3GB RAM cap
 .venv\Scripts\python scripts/run_cohorts.py       # full-population CPR ground truth
 .venv\Scripts\python scripts/run_panel.py         # sampled hazard panel
 .venv\Scripts\python scripts/run_models.py        # walk-forward logistic + GBM
-.venv\Scripts\python scripts/run_experiments.py   # E1/E2/E3 figures + tables
+.venv\Scripts\python scripts/run_experiments.py   # E1/E2/E3 + robustness appendix
 # NN: scripts/export_kaggle.py then notebooks/kaggle_nn_training.py on Kaggle GPU
+# Verify: .venv\Scripts\pytest
 ```
 
 `pytest` — 42 unit tests, including regression tests for three data-leakage

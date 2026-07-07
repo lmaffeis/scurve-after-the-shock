@@ -9,6 +9,7 @@ on the true monthly SMM scale.
 import numpy as np
 import polars as pl
 from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -18,16 +19,21 @@ from ..features import CATEGORICAL_FEATURES, NUMERIC_FEATURES
 
 class LogisticHazard:
     def __init__(self):
+        num = Pipeline([("impute", SimpleImputer(strategy="median")),
+                        ("scale", StandardScaler())])
         self.pipe = Pipeline([
             ("prep", ColumnTransformer([
-                ("num", StandardScaler(), NUMERIC_FEATURES),
+                ("num", num, NUMERIC_FEATURES),
                 ("cat", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_FEATURES),
             ])),
             ("clf", LogisticRegression(max_iter=2000, C=1.0)),
         ])
 
     def _pandas(self, X: pl.DataFrame):
-        return X.select(NUMERIC_FEATURES + CATEGORICAL_FEATURES).to_pandas()
+        return (X.select(NUMERIC_FEATURES + CATEGORICAL_FEATURES)
+                .with_columns([pl.col(c).cast(pl.Utf8).fill_null("NA")
+                               for c in CATEGORICAL_FEATURES])
+                .to_pandas())
 
     def fit(self, X: pl.DataFrame, y: np.ndarray, w: np.ndarray):
         self.pipe.fit(self._pandas(X), y, clf__sample_weight=w)

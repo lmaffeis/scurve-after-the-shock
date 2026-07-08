@@ -29,12 +29,13 @@ Code and replication materials are available in the accompanying public reposito
 We estimate loan-level mortgage prepayment hazard models---logistic regression, gradient-boosted
 trees, and a deep neural network in the spirit of \citet{sadhwani2021deep}---on 18.5 million Fannie
 Mae loans observed monthly between 2018 and 2025, and use them to characterize how the prepayment
-function changed after the 2022 interest-rate shock. We report three findings. First, the regime
-break was costly in both directions: a model estimated through 2021 over-predicts aggregate speeds
-by approximately 9 CPR points at the onset of the shock, yet annual re-estimation \emph{worsens}
-2023 forecasts relative to the frozen model (3.8 versus 2.3 CPR points of UPB-weighted cohort
-error), because re-estimation on the brief transition period imports an upwardly biased speed
-level. Re-estimation dominates only from 2025 onward. Second, partial-dependence analysis of the
+function changed after the 2022 interest-rate shock. We report three findings. First, the
+regime break was severe and, for a frozen model, \emph{persistent}: a model estimated through
+2021 over-predicts aggregate speeds by approximately 9 CPR points at the onset of the shock and
+remains 3.1--3.8 CPR points wrong in every subsequent year through 2025---the errors do not
+mean-revert. Annual re-estimation nearly halves cohort error in its first post-break year (2.2
+versus 3.8 CPR points in 2023) but requires roughly two years of new-regime data before errors
+fall below one CPR point. Second, partial-dependence analysis of the
 learned prepayment function on a common reference population shows that the lock-in era did not
 flatten the refinancing S-curve but rotated it: the refinancing response above the
 at-the-money point is substantially steeper than in the pre-pandemic regime (30.5 versus 13.2 CPR
@@ -81,12 +82,15 @@ classes of prepayment model of increasing flexibility under a strict walk-forwar
 evaluate them at two levels: loan-level discrimination and---the economically relevant
 metric---UPB-weighted cohort-level CPR error against full-population actuals.
 
-Our contributions are threefold. First, we quantify the \emph{re-estimation trap}: while the
-pre-shock model fails immediately and visibly (Section~\ref{sec:e1}), naive annual re-estimation
-underperforms the frozen legacy model for roughly two years after the break, because parameters
-fitted to the brief transition sample import a biased level. This finding has direct implications
-for model governance and is consistent with, but sharper than, the documented whipsaw of
-commercial models. Second, using per-regime estimation and partial-dependence analysis on a fixed
+Our contributions are threefold. First, we quantify both the persistence of legacy-model error
+and the recovery path of re-estimation across the break (Section~\ref{sec:e1}): the pre-shock
+model fails immediately and its errors never mean-revert---3.1 to 3.8 CPR points of UPB-weighted
+cohort error in every year from 2022 through 2025---while annual re-estimation improves steadily
+yet requires roughly two years of new-regime data to bring cohort errors below one CPR point.
+The implication for model governance is that a structurally broken model cannot be ``ridden
+out,'' and that recalibration restores accuracy only at the pace at which new-regime data
+accumulates; both facts are consistent with the documented performance of commercial models over
+2023--25. Second, using per-regime estimation and partial-dependence analysis on a fixed
 reference population (Section~\ref{sec:e2}), we decompose the apparent post-2022 flattening of the
 S-curve into composition and behavior. Conditional on composition, the refinancing limb of the
 lock-in-era S-curve is \emph{steeper} than its pre-pandemic counterpart---the refinancing
@@ -262,17 +266,18 @@ illustrates---are also the metrics most easily corrupted by leakage.
 \subsection{Walk-forward performance}
 
 Table~\ref{tab:walkforward} reports the walk-forward record. Three observations. First, the
-gradient-boosted model dominates the logistic benchmark on cohort-level error in five of seven
-windows, decisively so in the lock-in era (1.1 versus 6.1 CPR points at the 2024 split). Second,
+gradient-boosted model dominates the logistic benchmark on cohort-level error in six of seven
+windows, decisively so in the lock-in era (0.9 versus 6.1 CPR points at the 2024 split). Second,
 both models miss the level of the 2020--21 refinancing wave---as did commercial models; the
 determinants of wave amplitude (origination capacity, appraisal waivers, media effects) are not
 spanned by loan-level covariates. Third, discrimination \emph{declines} for all models in the
 lock-in era: with the entire universe out of the money, the residual variation in who prepays is
 close to idiosyncratic. The neural network, evaluated at three splits, is competitive on
-discrimination (AUC 0.75/0.65/0.64) but weaker than the trees on cohort error (8.8/4.6/1.5
-versus 8.8/2.8/1.1 CPR points) and under-predicts the hazard level; at $2.5$ million training
-rows this is consistent with the tabular-learning literature, and the original deep-learning
-advantage of \citet{sadhwani2021deep} was demonstrated on three orders of magnitude more data.
+discrimination (AUC 0.75/0.65/0.64), ahead of the trees on cohort error at the pre-wave split
+(8.8 versus 12.2 CPR points) but behind in the lock-in era (4.6 versus 3.7 and 1.5 versus 0.9)
+and under-predictive of the hazard level; at $2.5$ million training rows this mixed result is
+consistent with the tabular-learning literature, and the original deep-learning advantage of
+\citet{sadhwani2021deep} was demonstrated on three orders of magnitude more data.
 The gradient-boosted model is therefore the engine for the experiments that follow.
 
 \begin{table}[ht]
@@ -285,12 +290,12 @@ Training window ends & \multicolumn{2}{c}{Loan-level AUC} & \multicolumn{2}{c}{C
  & Logistic & GBM & Logistic & GBM \\
 \midrule
 2018-12 & 0.66 & 0.71 & 11.6 & 6.4 \\
-2019-12 & 0.75 & 0.72 & 12.7 & 8.8 \\
-2020-12 & 0.72 & 0.74 & 8.6 & 14.6 \\
-2021-12 & 0.61 & 0.66 & 4.6 & 2.8 \\
-2022-12 & 0.52 & 0.59 & 2.6 & 3.8 \\
-2023-12 & 0.57 & 0.63 & 5.2 & 2.6 \\
-2024-12 & 0.59 & 0.68 & 6.1 & 1.1 \\
+2019-12 & 0.75 & 0.78 & 12.7 & 12.2 \\
+2020-12 & 0.72 & 0.75 & 8.6 & 13.1 \\
+2021-12 & 0.61 & 0.66 & 4.6 & 3.7 \\
+2022-12 & 0.52 & 0.63 & 2.6 & 2.2 \\
+2023-12 & 0.57 & 0.66 & 5.2 & 0.9 \\
+2024-12 & 0.59 & 0.69 & 6.1 & 0.9 \\
 \bottomrule
 \end{tabular}
 \caption{Walk-forward evaluation. Each row: estimation through December of the stated year,
@@ -300,31 +305,35 @@ the pandemic refinancing wave.}
 \label{tab:walkforward}
 \end{table}
 
-\subsection{The regime break and the re-estimation trap}
+\subsection{The regime break: error persistence and the pace of recovery}
 \label{sec:e1}
 
 We compare a model frozen at December 2021 against annual re-estimation, both walked forward over
-2022--25 (Figure~\ref{fig:e1}). The frozen model's failure is immediate: in January 2022 it
-predicts aggregate speeds of approximately 20 CPR against an actual print of 11, an error of
-nearly 9 CPR points, as it extrapolates refinancing-wave behavior into a repriced market. The
-subtler result concerns re-estimation. In 2023, the annually re-estimated model---now fitted
-through December 2022, including the transition---performs \emph{worse} than the frozen model:
-3.8 versus 2.3 CPR points of UPB-weighted error. Six months of partially transitioned data teach
-the model a speed level that is still too fast, while the frozen model's errors, though
-structural, are stable and partially offsetting. Re-estimation still trails the frozen
-benchmark in 2024 (2.6 versus 2.1 CPR points) and overtakes it only in 2025 (1.1 versus 2.4).
-The governance implication: after a structural break, immediate recalibration on the transition
-sample can be value-destroying; in this sample, roughly two and a half years of post-break data
-were required before re-estimation dominated the frozen legacy model. This is consistent with the documented 2023--25 whipsaw in commercial model
-performance \citep{katz2024models}.
+2022--25 (Figure~\ref{fig:e1}). Two facts emerge from the error record. The first is the
+severity of the onset: in January 2022 the frozen model predicts aggregate speeds of
+approximately 19 CPR against an actual print of 11, an error of nearly 9 CPR points, as it
+extrapolates refinancing-wave behavior into a repriced market; over 2022 as a whole its
+UPB-weighted cohort error is 3.7 CPR points. The second is the \emph{persistence} of the frozen
+model's error: 3.8 points in 2023, 3.3 in 2024, and 3.1 in 2025. The errors do not decay as the
+lock-in era matures, because the model's learned response surface---not merely its level---is
+wrong for the new regime; Figure~\ref{fig:e1} shows it running 2--4 points above realized speeds
+in essentially every month after mid-2022. Re-estimation, by contrast, recovers steadily:
+including the 2022 transition year nearly halves the 2023 error (2.2 versus 3.8 points), and
+with two full years of post-break data the annually re-estimated model reaches 0.9 points in
+both 2024 and 2025, comparable to pre-break accuracy. The governance implication is symmetric: a
+structurally broken model cannot be ridden out in the hope that its errors mean-revert, and
+recalibration works but restores accuracy only at the pace at which new-regime observations
+accumulate. Both facts are consistent with the documented difficulties of commercial models over
+2023--25 \citep{yu2023uncharted, katz2024models}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/e1_frozen_vs_retrained.png}
 \caption{Aggregate UPB-weighted CPR, 2022--2025: actuals versus a model frozen at December 2021
 and a model re-estimated each year-end. The two model series coincide during 2022 by
-construction. The frozen model over-predicts by $\approx 9$ CPR points at the January 2022
-onset; the re-estimated model over-predicts throughout 2023.}
+construction. The frozen model over-predicts by $\approx 9$ CPR points at the January 2022 onset
+and remains 2--4 points above realized speeds through 2025; the re-estimated model converges to
+realized speeds from 2024 onward.}
 \label{fig:e1}
 \end{figure}
 
@@ -453,11 +462,13 @@ replication materials.
 Using open data and commodity hardware, we provide a public model-side account of the
 2022 mortgage prepayment regime break. The prepayment function did not merely shift: its
 refinancing limb steepened while its turnover component became governed by the prevailing-rate
-level, and the transition itself created a two-year window in which naive model re-estimation
-was counterproductive. For practitioners, the results argue for explicit regime-awareness in
-model governance---freezing, blending, or regime-conditioning rather than reflexive
-recalibration---and for close attention to the steep embedded optionality of the 2023--24
-high-coupon stack. For researchers, the removal-record leakage taxonomy of
+level. A model frozen at the break never recovered---its cohort errors remained above three CPR
+points in every post-break year---while annual re-estimation restored sub-point accuracy only
+after roughly two years of new-regime data. For practitioners, the results argue for explicit
+regime-awareness in model governance---recalibration works, but its speed limit is data
+accumulation, which favors supplementing re-estimation with regime-conditioning or judgmental
+overlays in the interim---and for close attention to the steep embedded optionality of the
+2023--24 high-coupon stack. For researchers, the removal-record leakage taxonomy of
 Section~\ref{sec:leakage} is a cautionary catalogue for anyone estimating event models on the
 public agency datasets: an out-of-sample AUC of 0.9999 is not a discovery.
 
@@ -476,11 +487,11 @@ the largest training window.
 \subsection{Calibration}
 
 Figure~\ref{fig:r1} plots, by decile of predicted hazard, the mean predicted monthly hazard
-against the design-weighted empirical event rate on the held-out year. The middle deciles lie on
-the diagonal; the model modestly under-predicts in the slowest deciles (e.g., 0.12\% predicted
-versus 0.16\% realized in the first decile) and over-predicts in the fastest decile (2.91\%
-versus 2.40\%). Fitted hazards are thus usable as levels, not merely as rankings, with mild
-attenuation at the fast tail.
+against the design-weighted empirical event rate on the held-out year. The middle deciles lie
+close to the diagonal; the model modestly under-predicts in the slower deciles (e.g., 0.13\%
+predicted versus 0.15\% realized in the first decile) and over-predicts in the fastest decile
+(2.86\% versus 2.51\%). Fitted hazards are thus usable as levels, not merely as rankings, with
+mild shrinkage toward the center at both tails.
 
 \begin{figure}[ht]
 \centering
@@ -495,8 +506,13 @@ design-weighted empirical event rate, by predicted-hazard decile. Dashed line is
 
 Figure~\ref{fig:r2} plots predicted against actual CPR for the 754 vintage $\times$ coupon
 cohort-months (with beginning balance above \$1bn) of the 2025 test year; marker area is
-proportional to cohort balance. The UPB-weighted mean absolute error is 1.09 CPR points, with no
-visible systematic bias across the speed range.
+proportional to cohort balance. The UPB-weighted mean absolute error is 0.86 CPR points.
+Predictions track actuals closely through roughly 20 CPR, where nearly all of the balance
+resides; the fastest cohort-months are modestly attenuated (predicted below actual above
+approximately 25 CPR)---the cohort-level counterpart of the tail shrinkage in
+Figure~\ref{fig:r1}---so point forecasts for the fastest, smallest cohorts should be read as
+conservative. (The 0.86 figure equals the 0.9 entry of Table~\ref{tab:walkforward} up to the
+\$1bn cohort filter and rounding.)
 
 \begin{figure}[ht]
 \centering

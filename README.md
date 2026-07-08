@@ -5,13 +5,13 @@ Loan-level hazard models (logistic, LightGBM, SSG-style neural net) trained on
 18.5M Fannie Mae loans (2018–2025), used to measure how the prepayment function
 changed after the 2022 rate shock — and what that implies for today's coupon stack.
 
-📄 **[Read the paper (PDF)](docs/paper/paper.pdf)**
+📄 **[Read the paper (PDF)](docs/paper/latex/main.pdf)**
 
 ## The three headline results
 
 | | |
 |---|---|
-| ![E1](artifacts/figures/e1_frozen_vs_retrained.png) | **1. The regime break was a forecasting disaster in both directions.** The model in production in Jan-2022 over-predicted aggregate speeds by ~9 CPR. Retraining annually made 2023 *worse* (3.8 vs 2.3 CPR pts error vs a frozen 2021 model) — it took ~2 years of lock-in data for retraining to win. |
+| ![E1](artifacts/figures/e1_frozen_vs_retrained.png) | **1. A broken model stays broken.** The model in production in Jan-2022 over-predicted aggregate speeds by ~9 CPR — and the frozen model's errors never mean-reverted (3.1–3.8 CPR pts every year through 2025). Annual retraining recovered steadily but needed ~2 years of lock-in data to get back under 1 CPR pt. |
 | ![E2](artifacts/figures/e2_scurves.png) | **2. Lock-in didn't flatten the S-curve — it rotated it.** Conditional on composition, the refi limb is *steeper* than pre-COVID (30 vs 13 CPR at +150bp; elasticity 12.6 vs 2.2 pts/100bp), while deep-discount turnover works through the rate-level channel. |
 | ![E3](artifacts/figures/e3_scenarios.png) | **3. The 2023–24 high-coupon stack is one rally from wave speeds.** As of Dec-2025: 7.0s ≈ 25 CPR flat, 43 CPR −100bp, 52 CPR −150bp. The 6.5s triple between flat and −150. |
 

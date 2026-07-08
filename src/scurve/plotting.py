@@ -41,6 +41,16 @@ plt.rcParams.update({
     "figure.facecolor": SURFACE,
     "axes.facecolor": SURFACE,
     "savefig.facecolor": SURFACE,
+    "axes.titlesize": 13,
+    "axes.titleweight": "bold",
+    "axes.titlepad": 14,
+    "axes.labelsize": 11,
+    "xtick.labelsize": 9.5,
+    "ytick.labelsize": 9.5,
+    "legend.fontsize": 10,
+    "axes.linewidth": 0.8,
+    "xtick.major.size": 0,
+    "ytick.major.size": 0,
 })
 
 

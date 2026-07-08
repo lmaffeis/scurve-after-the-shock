@@ -53,13 +53,18 @@ def run_walk_forward(panel_glob: str, cfg: dict, actuals: pl.DataFrame,
             if te.is_empty():
                 continue
             model = make_model(name, cfg)
-            # last 12 train months as early-stopping validation for GBM —
-            # only if enough earlier history remains to train on
-            val_start = month_add(train_end, -11)
-            mask = (tr["month"] >= val_start).to_numpy()
-            if name == "gbm" and (~mask).sum() > 0 and len(set(ytr[~mask])) == 2:
-                model.fit(tr.filter(~pl.Series(mask)), ytr[~mask], wtr[~mask],
-                          tr.filter(pl.Series(mask)), ytr[mask], wtr[mask])
+            # carve out the last 12 train months as a validation set ONLY when
+            # early stopping is actually enabled — otherwise the holdout is
+            # silently ignored and those months are simply lost from training
+            esr = cfg["models"]["gbm"].get("early_stopping_rounds")
+            if name == "gbm" and esr:
+                val_start = month_add(train_end, -11)
+                mask = (tr["month"] >= val_start).to_numpy()
+                if (~mask).sum() > 0 and len(set(ytr[~mask])) == 2:
+                    model.fit(tr.filter(~pl.Series(mask)), ytr[~mask], wtr[~mask],
+                              tr.filter(pl.Series(mask)), ytr[mask], wtr[mask])
+                else:
+                    model.fit(tr, ytr, wtr)
             else:
                 model.fit(tr, ytr, wtr)
             p = model.predict_hazard(te)

@@ -6,3 +6,4 @@ data/
 artifacts/models/
 *.duckdb
 .pytest_cache/
+docs/linkedin/

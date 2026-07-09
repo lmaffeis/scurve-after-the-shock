@@ -6,7 +6,7 @@ Style follows the dataviz skill's validated reference palette (light mode):
 - text wears ink tokens, never series colors; legend whenever >=2 series
 - one axis only; CPR always in percent, incentive in bps
 - every figure carries a source line
-Output: 300dpi PNG, >=1600px wide (LinkedIn-safe), light surface.
+Output: 300dpi PNG, >=1600px wide, light surface.
 """
 from pathlib import Path
 

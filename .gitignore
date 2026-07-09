@@ -7,3 +7,5 @@ artifacts/models/
 *.duckdb
 .pytest_cache/
 docs/linkedin/
+docs/superpowers/
+docs/kaggle-instructions.md

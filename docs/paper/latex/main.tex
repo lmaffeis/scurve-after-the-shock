@@ -26,8 +26,8 @@ Code and replication materials are available in the accompanying public reposito
 
 \begin{abstract}
 \noindent
-We estimate loan-level mortgage prepayment hazard models---logistic regression, gradient-boosted
-trees, and a deep neural network in the spirit of \citet{sadhwani2021deep}---on 18.5 million Fannie
+We estimate loan-level mortgage prepayment hazard models (logistic regression, gradient-boosted
+trees, and a deep neural network in the spirit of \citet{sadhwani2021deep}) on 18.5 million Fannie
 Mae loans observed monthly between 2018 and 2025, and use them to characterize how the prepayment
 function changed after the 2022 interest-rate shock. A model estimated through 2021
 over-predicted aggregate speeds by roughly 9 CPR at the onset of the shock, and its errors never
@@ -41,7 +41,7 @@ level of prevailing rates rather than by a weaker incentive response. Applied to
 2025 cross-section, the model places 2023--24 vintage 7.0\% coupons near 25 CPR at unchanged
 rates and above 50 CPR in a 150 basis point rally. A caution for empirical work on this dataset:
 several fields are blanked on removal records and can leak the prepayment event into standard
-covariates, which---untreated---inflates out-of-sample AUC to 0.9999. All code and artifacts are
+covariates, which, left untreated, inflates out-of-sample AUC to 0.9999. All code and artifacts are
 public.
 \end{abstract}
 
@@ -56,13 +56,13 @@ Between March 2022 and October 2023 the 30-year fixed mortgage rate in the Unite
 below 4\% to nearly 8\%, the fastest repricing of the mortgage market in four decades. Aggregate
 conditional prepayment rates (CPR) on Fannie Mae collateral fell from above 35 to below 5, and by
 the end of 2023 nearly the entire agency universe was out of the money. The episode placed
-prepayment models---the central pricing input for a \$9 trillion market---outside the support of
+prepayment models, the central pricing input for a \$9 trillion market, outside the support of
 their training data. The practitioner record of the aftermath is extensive: vendor models missed
 monthly aggregate prints by 10--25\% through 2023--2025, disagreed on the sign of convexity below
 par, and generated relative-value signals that inverted against realized returns
 \citep{yu2023uncharted, katz2024models}.
 
-A parallel academic literature has quantified the underlying mechanism---rate lock-in---from the
+A parallel academic literature has quantified the underlying mechanism, rate lock-in, from the
 housing side. \citet{batzer2024lockin} estimate that each percentage point by which prevailing
 rates exceed a borrower's contract rate reduces the probability of sale by 18.1\%;
 \citet{fonseca2024lockin} find a 9--16\% reduction in moving probability per percentage point of
@@ -72,18 +72,17 @@ does not address the model-side question that concerns fixed-income practitioner
 exactly changed in the prepayment function, and how should data-driven models be managed across
 such a break?}
 
-This paper provides one of the first public model-side treatments of the 2022 regime break
-estimated on open data. We construct a monthly discrete-time hazard panel from the Fannie
+This paper takes up both questions on open data. We construct a monthly discrete-time hazard panel from the Fannie
 Mae Single-Family Loan Performance dataset (18.5 million loans, 2018--2025), estimate three
 classes of prepayment model of increasing flexibility under a strict walk-forward protocol, and
-evaluate them at two levels: loan-level discrimination and---the economically relevant
-metric---UPB-weighted cohort-level CPR error against full-population actuals.
+evaluate them at two levels: loan-level discrimination and, more importantly for economic
+purposes, UPB-weighted cohort-level CPR error against full-population actuals.
 
 The first set of results concerns model governance across the break
 (Section~\ref{sec:e1}). The pre-shock model fails immediately, and its errors never
 mean-revert: 3.1 to 3.8 CPR points of UPB-weighted cohort error in every year from 2022 through
 2025. A structurally broken model, in other words, could not be ``ridden out.'' Re-estimation
-worked, but slowly---annual refits improve steadily and still need roughly two years of
+worked, but slowly: annual refits improve steadily and still need roughly two years of
 new-regime data before cohort errors fall below one CPR point, a pace of recovery that matches
 what has been documented for commercial models over 2023--25.
 
@@ -103,7 +102,7 @@ vintage 6.5--7.0\% coupons rise steeply under modest rallies; the 6.5s roughly t
 unchanged rates and a 150 basis point rally.
 
 A secondary, methodological contribution concerns data quality. Three fields in the public
-dataset are blanked on a loan's terminal record, so that---if used contemporaneously---their
+dataset are blanked on a loan's terminal record, so that, if used contemporaneously, their
 missingness perfectly reveals the prepayment event. Untreated, these produce out-of-sample AUCs
 of 0.9999 and would invalidate any study built on them. Section~\ref{sec:leakage} documents the
 mechanism and the corrections, which we regression-test in the released code.
@@ -151,7 +150,7 @@ and repurchases are treated as censoring.
 
 \subsection{Cohort-level ground truth}
 
-From the full population---prior to any sampling---we compute actual cohort-level single monthly
+From the full population, prior to any sampling, we compute actual cohort-level single monthly
 mortality and CPR by vintage year and coupon (rounded to the nearest 0.5), where SMM is
 voluntarily prepaid UPB over beginning-of-month UPB. These series serve as the evaluation target
 for all models and align with public anchors: 2023-vintage 7.0 coupons print 5.4 CPR in June
@@ -179,14 +178,14 @@ modification flag.
 \subsection{Removal-record measurement pitfalls}
 \label{sec:leakage}
 
-Three covariates initially produced out-of-sample AUCs of 0.9999---a value that should be read as
+Three covariates initially produced out-of-sample AUCs of 0.9999, a value that should be read as
 diagnostic of leakage rather than of predictive skill. The mechanism is systematic: the dataset
 blanks monthly-reported fields on a loan's terminal record. Consequently (i) mark-to-market LTV
 computed on the end-of-period balance equals exactly zero if and only if the loan prepaid that
 month; (ii) the modification flag and delinquency status are missing on removal records, so their
 missingness indicators reveal the event; and (iii) the reported loan-age field is likewise
 blanked. All state-dependent inputs are therefore measured as of the \emph{beginning} of the
-month---balances lagged (the factor-date convention), status fields lagged one month, and loan age
+month: balances lagged (the factor-date convention), status fields lagged one month, and loan age
 computed from calendar arithmetic rather than read from the file. Each correction carries a
 regression test in the released code. Post-correction discrimination falls to the 0.59--0.75
 range, which we regard as the honest difficulty of monthly voluntary-prepayment classification.
@@ -222,7 +221,7 @@ $S = \sum_{it} z_{it}$, the weighted sample sum $\hat S = \sum_{it \in \mathcal{
 z_{it}$ is a Horvitz--Thompson estimator and is unbiased, since each term's inclusion
 probability is exactly $\pi_{s(i)}$ or $\pi_{s(i)}\kappa$ by construction. Two consequences
 follow. First, maximizing the $w$-weighted log-likelihood targets the population likelihood, so
-fitted hazards are calibrated to the population base rate---retaining all events while
+fitted hazards are calibrated to the population base rate: retaining all events while
 down-sampling non-events does \emph{not} require the usual post-hoc intercept correction for
 case-control sampling, because the weights already undo the design. Second, population
 cohort-level speeds are recovered by weighting fitted hazards with the product of design weight
@@ -242,7 +241,7 @@ are well calibrated against weighted empirical event rates.
 \subsection{Estimators}
 
 We estimate three models of increasing flexibility on identical features and weights: (i)
-weighted logistic regression (median-imputed numerics, one-hot categoricals)---the linear
+weighted logistic regression (median-imputed numerics, one-hot categoricals), the linear
 benchmark; (ii) gradient-boosted trees (LightGBM; 63 leaves, 600 trees, learning rate 0.05,
 minimum 100 observations per leaf), with missing values handled natively; and (iii) a
 feed-forward neural network with categorical embeddings (three hidden layers, 128--128--64 ReLU
@@ -257,8 +256,8 @@ All evaluation is strictly walk-forward: models are estimated on months up to De
 $T$ and evaluated on the following twelve months, for $T = 2018, \dots, 2024$. We report
 loan-level weighted AUC, and UPB-weighted mean absolute cohort CPR error (in CPR points) against
 the full-population actuals of Section~3.2. We emphasize the latter: loan-level discrimination
-metrics have limited economic meaning for portfolio speeds, and---as Section~\ref{sec:leakage}
-illustrates---are also the metrics most easily corrupted by leakage.
+metrics have limited economic meaning for portfolio speeds; as Section~\ref{sec:leakage}
+illustrates, they are also the metrics most easily corrupted by leakage.
 
 \section{Results}
 \label{sec:results}
@@ -343,8 +342,8 @@ realized speeds from 2024 onward.}
 \subsection{The learned S-curve, by regime}
 \label{sec:e2}
 
-We estimate the gradient-boosted model separately on each regime---pre-pandemic (2018-01 to
-2019-12), refinancing wave (2020-04 to 2021-12), and lock-in (2022-07 to 2025-12)---and trace
+We estimate the gradient-boosted model separately on each regime (pre-pandemic, 2018-01 to
+2019-12; refinancing wave, 2020-04 to 2021-12; lock-in, 2022-07 to 2025-12) and trace
 each fitted model's partial-dependence function of the refinancing incentive on a \emph{common}
 reference population of 200,000 lock-in-era loan-months. Holding the population fixed ensures
 that differences between curves reflect learned behavior rather than composition.
@@ -382,11 +381,11 @@ The central finding is a rotation, not a flattening. The refinancing limb of the
 S-curve is markedly steeper than its pre-pandemic counterpart: 30.5 versus 13.2 CPR at $+150$
 basis points, an elasticity through the cusp of 12.6 versus 2.2 CPR points per 100 basis points.
 Borrowers who reach the money in the lock-in era refinance faster than any pre-2020 cohort
-would have---consistent with the 15-month average age at refinancing observed in the 2024
+would have, consistent with the 15-month average age at refinancing observed in the 2024
 episode and with the efficiency of modern origination channels. At the deep-discount end, the
 lock-in model's implied turnover on the common population is close to pre-pandemic levels; the
 observed 2--4 CPR prints of deeply out-of-the-money cohorts are reproduced through the
-prevailing-rate-level covariate---the lock-in channel of \citet{batzer2024lockin}---rather than
+prevailing-rate-level covariate, the lock-in channel of \citet{batzer2024lockin}, rather than
 through a degraded incentive response.
 
 A word on how to read (and how not to read) Table~\ref{tab:e2}. Partial-dependence values at a
@@ -448,8 +447,8 @@ counterpart of the record negative convexity measured in the current-coupon mark
 \section{Limitations}
 \label{sec:limitations}
 
-Our sample is Fannie Mae collateral only; Ginnie Mae collateral---whose VA segment exhibited the
-fastest and most policy-sensitive speeds of the 2024--25 episodes---is outside the dataset.
+Our sample is Fannie Mae collateral only; Ginnie Mae collateral, whose VA segment exhibited the
+fastest and most policy-sensitive speeds of the 2024--25 episodes, is outside the dataset.
 The pre-pandemic regime is observed for only two years (vintages 2018+). The scenario analysis
 is a one-month hazard annualized with burnout and house prices held fixed; it understates path
 dependence in a sustained rally and is not a valuation (OAS) model. The level of the 2020--21
@@ -465,13 +464,13 @@ replication materials.
 Using open data and commodity hardware, we provide a public model-side account of the
 2022 mortgage prepayment regime break. The prepayment function did not merely shift: its
 refinancing limb steepened while its turnover component became governed by the prevailing-rate
-level. A model frozen at the break never recovered---its cohort errors remained above three CPR
-points in every post-break year---while annual re-estimation restored sub-point accuracy only
+level. A model frozen at the break never recovered (its cohort errors remained above three CPR
+points in every post-break year), while annual re-estimation restored sub-point accuracy only
 after roughly two years of new-regime data. For practitioners, the results argue for explicit
-regime-awareness in model governance---recalibration works, but its speed limit is data
+regime-awareness in model governance: recalibration works, but its speed limit is data
 accumulation, which favors supplementing re-estimation with regime-conditioning or judgmental
-overlays in the interim---and for close attention to the steep embedded optionality of the
-2023--24 high-coupon stack. For researchers, the removal-record leakage taxonomy of
+overlays in the interim. They also argue for close attention to the steep embedded optionality
+of the 2023--24 high-coupon stack. For researchers, the removal-record leakage taxonomy of
 Section~\ref{sec:leakage} is a cautionary catalogue for anyone estimating event models on the
 public agency datasets: an out-of-sample AUC of 0.9999 is not a discovery.
 
@@ -512,8 +511,8 @@ cohort-months (with beginning balance above \$1bn) of the 2025 test year; marker
 proportional to cohort balance. The UPB-weighted mean absolute error is 0.86 CPR points.
 Predictions track actuals closely through roughly 20 CPR, where nearly all of the balance
 resides; the fastest cohort-months are modestly attenuated (predicted below actual above
-approximately 25 CPR)---the cohort-level counterpart of the tail shrinkage in
-Figure~\ref{fig:r1}---so point forecasts for the fastest, smallest cohorts should be read as
+approximately 25 CPR), the cohort-level counterpart of the tail shrinkage in
+Figure~\ref{fig:r1}, so point forecasts for the fastest, smallest cohorts should be read as
 conservative. (The 0.86 figure equals the 0.9 entry of Table~\ref{tab:walkforward} up to the
 \$1bn cohort filter and rounding.)
 
@@ -553,8 +552,8 @@ all 2025 months.}
 
 Figure~\ref{fig:r4} repeats the partial-dependence analysis of Section~\ref{sec:e2} within
 tertiles of spread at origination. The regime ordering of Section~\ref{sec:e2} is preserved
-within every tertile, and within every regime higher-SATO tertiles trace steeper curves ---
-the composition mechanism emphasized by \citet{sancap2024scurves} --- confirming that the
+within every tertile, and within every regime higher-SATO tertiles trace steeper curves,
+the composition mechanism emphasized by \citet{sancap2024scurves}, confirming that the
 S-curve rotation is not an artifact of pooling across SATO.
 
 \begin{figure}[ht]

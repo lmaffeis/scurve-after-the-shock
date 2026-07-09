@@ -5,7 +5,6 @@ The SATO-bucket S-curve robustness figure is produced by e2 (e2_scurves_by_sato)
 """
 import json
 
-import numpy as np
 import polars as pl
 
 from ..evaluate import (cohort_cpr_from_preds, cpr_error_table,

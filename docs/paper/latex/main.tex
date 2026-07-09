@@ -269,8 +269,8 @@ the logistic benchmark on cohort-level error in six of seven windows, and the ga
 exactly where it matters for the questions of this paper: 0.9 versus 6.1 CPR points at the 2024
 split. Neither model gets the \emph{level} of the 2020--21 refinancing wave right. Commercial
 models did not either; the determinants of wave amplitude (origination capacity, appraisal
-waivers, media effects) are simply not spanned by loan-level covariates, and we flag this
-honestly rather than tune it away. It is also worth dwelling on the AUC column: discrimination
+waivers, media effects) are not spanned by loan-level covariates, and we treat this as a
+limitation rather than attempting to tune it away. The AUC column also deserves comment: discrimination
 deteriorates for every model in the lock-in era. With the entire universe out of the money, who
 prepays in a given month is close to idiosyncratic, so a low lock-in-era AUC is a property of
 the environment, not a defect of any particular learner. As for the neural network, evaluated
@@ -311,22 +311,22 @@ the pandemic refinancing wave.}
 \label{sec:e1}
 
 We compare a model frozen at December 2021 against annual re-estimation, both walked forward over
-2022--25 (Figure~\ref{fig:e1}). The onset is brutal: in January 2022 the frozen model predicts
+2022--25 (Figure~\ref{fig:e1}). The onset is severe: in January 2022 the frozen model predicts
 aggregate speeds of approximately 19 CPR against an actual print of 11, an error of nearly 9
 CPR points, because it extrapolates refinancing-wave behavior into a market that has just
-repriced. Over 2022 as a whole its UPB-weighted cohort error is 3.7 CPR points. What the
-aggregate figures cannot show, and the annual errors can, is that the frozen model never gets
-better: 3.8 points in 2023, 3.3 in 2024, 3.1 in 2025. The errors do not decay as the lock-in
+repriced. Over 2022 as a whole its UPB-weighted cohort error is 3.7 CPR points. The annual
+errors show that the frozen model does not improve thereafter: 3.8 points in 2023, 3.3 in 2024,
+3.1 in 2025. The errors do not decay as the lock-in
 era matures, because the model's learned response surface---not merely its level---is wrong for
 the new regime; Figure~\ref{fig:e1} shows it running 2--4 points above realized speeds in
-essentially every month after mid-2022. Re-estimation recovers, but on data's schedule rather
-than management's: folding in the 2022 transition year nearly halves the 2023 error (2.2 versus
-3.8 points), and with two full years of post-break observations the annually re-estimated model
-reaches 0.9 points in both 2024 and 2025, comparable to pre-break accuracy. The governance
-lesson cuts both ways. A structurally broken model cannot be ridden out in the hope that its
-errors mean-revert, and recalibration works but only at the pace at which new-regime
-observations accumulate. Both halves are consistent with the documented difficulties of commercial models over
-2023--25 \citep{yu2023uncharted, katz2024models}.
+essentially every month after mid-2022. Re-estimation recovers, but only as new-regime
+observations accumulate: folding in the 2022 transition year nearly halves the 2023 error (2.2
+versus 3.8 points), and with two full years of post-break observations the annually
+re-estimated model reaches 0.9 points in both 2024 and 2025, comparable to pre-break accuracy.
+The governance implication is twofold: a structurally broken model cannot be ridden out in the
+hope that its errors mean-revert, and recalibration, while effective, is gradual. Both
+implications are consistent with the documented difficulties of commercial models over 2023--25
+\citep{yu2023uncharted, katz2024models}.
 
 \begin{figure}[ht]
 \centering
@@ -388,7 +388,7 @@ observed 2--4 CPR prints of deeply out-of-the-money cohorts are reproduced throu
 prevailing-rate-level covariate, the lock-in channel of \citet{batzer2024lockin}, rather than
 through a degraded incentive response.
 
-A word on how to read (and how not to read) Table~\ref{tab:e2}. Partial-dependence values at a
+Interpreting Table~\ref{tab:e2} requires care. Partial-dependence values at a
 given incentive are averages over the \emph{entire} reference population with only the incentive
 altered; every other covariate, including burnout, mark-to-market LTV, and the prevailing-rate
 level, keeps its observed value. The population composition at, say, $-200$ basis points in the
@@ -440,7 +440,7 @@ under parallel mortgage-rate shifts.}
 
 The 7.0\% coupons are already fast at unchanged rates ($\approx$25 CPR) and reach
 refinancing-wave speeds (above 50 CPR) under a 150 basis point rally; the 6.5s approximately
-triple over the same interval and constitute the cuspiest segment. This is the model-implied
+triple over the same interval and constitute the most rate-sensitive segment of the stack. This is the model-implied
 counterpart of the record negative convexity measured in the current-coupon market in late 2025
 \citep{katz2024models}, localized to specific vintage-coupon cohorts.
 

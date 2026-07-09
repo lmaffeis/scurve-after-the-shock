@@ -65,12 +65,11 @@ py -3.11 -m venv .venv
 - `docs/research/literature-survey.md` — literature review with verification notes
 - `artifacts/figures/`, `artifacts/tables/` — every figure and number in the paper
 
-## License and data
+## Data
 
-The code is released under the MIT license so the pipeline can be reused freely.
-The paper text and figures are © the author. The Fannie Mae Single-Family Loan
-Performance dataset is used under its own terms and no loan-level data is
-redistributed here; rates and house-price series come from FRED and FHFA.
+The Fannie Mae Single-Family Loan Performance dataset is used under its own terms
+and no loan-level data is redistributed here; rates and house-price series come
+from FRED and FHFA.
 
 Personal research project on public data. Not investment advice; views are my own
 and not those of any employer.

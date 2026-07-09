@@ -29,23 +29,20 @@ Code and replication materials are available in the accompanying public reposito
 We estimate loan-level mortgage prepayment hazard models---logistic regression, gradient-boosted
 trees, and a deep neural network in the spirit of \citet{sadhwani2021deep}---on 18.5 million Fannie
 Mae loans observed monthly between 2018 and 2025, and use them to characterize how the prepayment
-function changed after the 2022 interest-rate shock. We report three findings. First, the
-regime break was severe and, for a frozen model, \emph{persistent}: a model estimated through
-2021 over-predicts aggregate speeds by approximately 9 CPR points at the onset of the shock and
-remains 3.1--3.8 CPR points wrong in every subsequent year through 2025---the errors do not
-mean-revert. Annual re-estimation nearly halves cohort error in its first post-break year (2.2
-versus 3.8 CPR points in 2023) but requires roughly two years of new-regime data before errors
-fall below one CPR point. Second, partial-dependence analysis of the
-learned prepayment function on a common reference population shows that the lock-in era did not
-flatten the refinancing S-curve but rotated it: the refinancing response above the
-at-the-money point is substantially steeper than in the pre-pandemic regime (30.5 versus 13.2 CPR
-at +150 basis points of incentive), while deep-discount turnover operates primarily through the
-prevailing-rate level. Third, applying the estimated model to the December 2025 cross-section, the
-2023--24 high-coupon universe exhibits pronounced negative convexity: projected speeds for
-7.0\% coupons rise from approximately 25 CPR at unchanged rates to above 50 CPR under a 150 basis
-point rally. We document three data-quality pitfalls in the public dataset that mechanically
-inflate out-of-sample classification metrics if untreated, and we release all code and artifacts
-for replication.
+function changed after the 2022 interest-rate shock. A model estimated through 2021
+over-predicted aggregate speeds by roughly 9 CPR at the onset of the shock, and its errors never
+recovered: between 3.1 and 3.8 CPR points of cohort-level error in every year through 2025.
+Annual re-estimation halved the error within a year, then needed about two more years of data to
+get back below one point. The prepayment function itself did not flatten in the lock-in era, as
+is sometimes argued; it rotated. Holding borrower composition fixed, the refinancing response
+above the money is more than twice as steep as before the pandemic (30.5 versus 13.2 CPR at
+$+150$ basis points of incentive), and the slow speeds of discount coupons are carried by the
+level of prevailing rates rather than by a weaker incentive response. Applied to the December
+2025 cross-section, the model places 2023--24 vintage 7.0\% coupons near 25 CPR at unchanged
+rates and above 50 CPR in a 150 basis point rally. A caution for empirical work on this dataset:
+several fields are blanked on removal records and can leak the prepayment event into standard
+covariates, which---untreated---inflates out-of-sample AUC to 0.9999. All code and artifacts are
+public.
 \end{abstract}
 
 \vspace{0.5em}
@@ -82,25 +79,28 @@ classes of prepayment model of increasing flexibility under a strict walk-forwar
 evaluate them at two levels: loan-level discrimination and---the economically relevant
 metric---UPB-weighted cohort-level CPR error against full-population actuals.
 
-Our contributions are threefold. First, we quantify both the persistence of legacy-model error
-and the recovery path of re-estimation across the break (Section~\ref{sec:e1}): the pre-shock
-model fails immediately and its errors never mean-revert---3.1 to 3.8 CPR points of UPB-weighted
-cohort error in every year from 2022 through 2025---while annual re-estimation improves steadily
-yet requires roughly two years of new-regime data to bring cohort errors below one CPR point.
-The implication for model governance is that a structurally broken model cannot be ``ridden
-out,'' and that recalibration restores accuracy only at the pace at which new-regime data
-accumulates; both facts are consistent with the documented performance of commercial models over
-2023--25. Second, using per-regime estimation and partial-dependence analysis on a fixed
-reference population (Section~\ref{sec:e2}), we decompose the apparent post-2022 flattening of the
-S-curve into composition and behavior. Conditional on composition, the refinancing limb of the
-lock-in-era S-curve is \emph{steeper} than its pre-pandemic counterpart---the refinancing
-elasticity through the cusp rises from 2.2 to 12.6 CPR points per 100 basis points---while
-depressed deep-discount turnover is absorbed by the prevailing-rate level rather than by a decayed
-incentive response. This decomposition speaks directly to a live practitioner debate
-\citep{sancap2024scurves, katz2024models}. Third, we translate the estimates into a
-forward-looking statement about the current coupon stack (Section~\ref{sec:e3}): as of December
-2025, model-implied speeds for the 2023--24 vintage 6.5--7.0\% coupons rise steeply under modest
-rallies, tripling for 6.5s between unchanged rates and a 150 basis point rally.
+The first set of results concerns model governance across the break
+(Section~\ref{sec:e1}). The pre-shock model fails immediately, and its errors never
+mean-revert: 3.1 to 3.8 CPR points of UPB-weighted cohort error in every year from 2022 through
+2025. A structurally broken model, in other words, could not be ``ridden out.'' Re-estimation
+worked, but slowly---annual refits improve steadily and still need roughly two years of
+new-regime data before cohort errors fall below one CPR point, a pace of recovery that matches
+what has been documented for commercial models over 2023--25.
+
+The second set of results concerns the shape of the prepayment function
+(Section~\ref{sec:e2}). Estimating the model separately by regime and tracing each fit's
+partial-dependence S-curve on a fixed reference population separates composition from behavior,
+and the answer is not the flattening that is sometimes claimed. Conditional on composition, the
+refinancing limb of the lock-in-era S-curve is \emph{steeper} than its pre-pandemic
+counterpart: the elasticity through the cusp rises from 2.2 to 12.6 CPR points per 100 basis
+points. Depressed deep-discount turnover, meanwhile, is absorbed by the prevailing-rate level
+rather than by a decayed incentive response. Both sides of a live practitioner debate
+\citep{sancap2024scurves, katz2024models} turn out to be describing the same estimated function.
+
+Finally, the estimates translate into a forward-looking statement about the current coupon
+stack (Section~\ref{sec:e3}). As of December 2025, model-implied speeds for the 2023--24
+vintage 6.5--7.0\% coupons rise steeply under modest rallies; the 6.5s roughly triple between
+unchanged rates and a 150 basis point rally.
 
 A secondary, methodological contribution concerns data quality. Three fields in the public
 dataset are blanked on a loan's terminal record, so that---if used contemporaneously---their
@@ -265,20 +265,23 @@ illustrates---are also the metrics most easily corrupted by leakage.
 
 \subsection{Walk-forward performance}
 
-Table~\ref{tab:walkforward} reports the walk-forward record. Three observations. First, the
-gradient-boosted model dominates the logistic benchmark on cohort-level error in six of seven
-windows, decisively so in the lock-in era (0.9 versus 6.1 CPR points at the 2024 split). Second,
-both models miss the level of the 2020--21 refinancing wave---as did commercial models; the
-determinants of wave amplitude (origination capacity, appraisal waivers, media effects) are not
-spanned by loan-level covariates. Third, discrimination \emph{declines} for all models in the
-lock-in era: with the entire universe out of the money, the residual variation in who prepays is
-close to idiosyncratic. The neural network, evaluated at three splits, is competitive on
-discrimination (AUC 0.75/0.65/0.64), ahead of the trees on cohort error at the pre-wave split
-(8.8 versus 12.2 CPR points) but behind in the lock-in era (4.6 versus 3.7 and 1.5 versus 0.9)
-and under-predictive of the hazard level; at $2.5$ million training rows this mixed result is
-consistent with the tabular-learning literature, and the original deep-learning advantage of
-\citet{sadhwani2021deep} was demonstrated on three orders of magnitude more data.
-The gradient-boosted model is therefore the engine for the experiments that follow.
+Table~\ref{tab:walkforward} reports the walk-forward record. The gradient-boosted model beats
+the logistic benchmark on cohort-level error in six of seven windows, and the gap is widest
+exactly where it matters for the questions of this paper: 0.9 versus 6.1 CPR points at the 2024
+split. Neither model gets the \emph{level} of the 2020--21 refinancing wave right. Commercial
+models did not either; the determinants of wave amplitude (origination capacity, appraisal
+waivers, media effects) are simply not spanned by loan-level covariates, and we flag this
+honestly rather than tune it away. It is also worth dwelling on the AUC column: discrimination
+deteriorates for every model in the lock-in era. With the entire universe out of the money, who
+prepays in a given month is close to idiosyncratic, so a low lock-in-era AUC is a property of
+the environment, not a defect of any particular learner. As for the neural network, evaluated
+at three splits it is competitive on discrimination (AUC 0.75/0.65/0.64) and ahead of the trees
+on cohort error at the pre-wave split (8.8 versus 12.2 CPR points), but it falls behind in the
+lock-in era (4.6 versus 3.7, and 1.5 versus 0.9) and under-predicts the hazard level. At 2.5
+million training rows a mixed result is what the tabular-learning literature would predict;
+the deep-learning advantage in \citet{sadhwani2021deep} was demonstrated on three orders of
+magnitude more data. The gradient-boosted model is therefore the engine for the experiments
+that follow.
 
 \begin{table}[ht]
 \centering
@@ -309,21 +312,21 @@ the pandemic refinancing wave.}
 \label{sec:e1}
 
 We compare a model frozen at December 2021 against annual re-estimation, both walked forward over
-2022--25 (Figure~\ref{fig:e1}). Two facts emerge from the error record. The first is the
-severity of the onset: in January 2022 the frozen model predicts aggregate speeds of
-approximately 19 CPR against an actual print of 11, an error of nearly 9 CPR points, as it
-extrapolates refinancing-wave behavior into a repriced market; over 2022 as a whole its
-UPB-weighted cohort error is 3.7 CPR points. The second is the \emph{persistence} of the frozen
-model's error: 3.8 points in 2023, 3.3 in 2024, and 3.1 in 2025. The errors do not decay as the
-lock-in era matures, because the model's learned response surface---not merely its level---is
-wrong for the new regime; Figure~\ref{fig:e1} shows it running 2--4 points above realized speeds
-in essentially every month after mid-2022. Re-estimation, by contrast, recovers steadily:
-including the 2022 transition year nearly halves the 2023 error (2.2 versus 3.8 points), and
-with two full years of post-break data the annually re-estimated model reaches 0.9 points in
-both 2024 and 2025, comparable to pre-break accuracy. The governance implication is symmetric: a
-structurally broken model cannot be ridden out in the hope that its errors mean-revert, and
-recalibration works but restores accuracy only at the pace at which new-regime observations
-accumulate. Both facts are consistent with the documented difficulties of commercial models over
+2022--25 (Figure~\ref{fig:e1}). The onset is brutal: in January 2022 the frozen model predicts
+aggregate speeds of approximately 19 CPR against an actual print of 11, an error of nearly 9
+CPR points, because it extrapolates refinancing-wave behavior into a market that has just
+repriced. Over 2022 as a whole its UPB-weighted cohort error is 3.7 CPR points. What the
+aggregate figures cannot show, and the annual errors can, is that the frozen model never gets
+better: 3.8 points in 2023, 3.3 in 2024, 3.1 in 2025. The errors do not decay as the lock-in
+era matures, because the model's learned response surface---not merely its level---is wrong for
+the new regime; Figure~\ref{fig:e1} shows it running 2--4 points above realized speeds in
+essentially every month after mid-2022. Re-estimation recovers, but on data's schedule rather
+than management's: folding in the 2022 transition year nearly halves the 2023 error (2.2 versus
+3.8 points), and with two full years of post-break observations the annually re-estimated model
+reaches 0.9 points in both 2024 and 2025, comparable to pre-break accuracy. The governance
+lesson cuts both ways. A structurally broken model cannot be ridden out in the hope that its
+errors mean-revert, and recalibration works but only at the pace at which new-regime
+observations accumulate. Both halves are consistent with the documented difficulties of commercial models over
 2023--25 \citep{yu2023uncharted, katz2024models}.
 
 \begin{figure}[ht]
@@ -386,18 +389,18 @@ observed 2--4 CPR prints of deeply out-of-the-money cohorts are reproduced throu
 prevailing-rate-level covariate---the lock-in channel of \citet{batzer2024lockin}---rather than
 through a degraded incentive response.
 
-Two remarks prevent misreading of Table~\ref{tab:e2}. First, partial-dependence values at a
+A word on how to read (and how not to read) Table~\ref{tab:e2}. Partial-dependence values at a
 given incentive are averages over the \emph{entire} reference population with only the incentive
-altered; all other covariates, including burnout, mark-to-market LTV, and the prevailing-rate
-level, retain their observed values. The population composition at, say, $-200$ basis points in
-the table therefore never occurs in any realized cohort, and the tabulated 8.9 CPR for the
-lock-in model at $-200$ basis points is not comparable to the 2--4 CPR prints of 2021-vintage
-2.5\% coupons: those cohorts sit at $-300$ to $-450$ basis points of incentive---at or beyond
-the left edge of the evaluated grid, where the curves are lower---and their suppressed turnover
-loads on the rate-level covariate rather than on the incentive itself. Second, because the
-reference population is fixed across regimes, \emph{differences} between curves are identified
-as differences in the learned response functions; \emph{levels} inherit the reference
-population's covariate mix and should be read only relative to one another. SATO-conditioned partial dependence (replication
+altered; every other covariate, including burnout, mark-to-market LTV, and the prevailing-rate
+level, keeps its observed value. The population composition at, say, $-200$ basis points in the
+table never occurs in any realized cohort. In particular, the tabulated 8.9 CPR for the lock-in
+model at $-200$ basis points is not comparable to the 2--4 CPR prints of 2021-vintage 2.5\%
+coupons: those cohorts sit at $-300$ to $-450$ basis points of incentive, at or beyond the left
+edge of the evaluated grid where the curves are lower, and their suppressed turnover loads on
+the rate-level covariate rather than on the incentive itself. And because the reference
+population is held fixed across regimes, \emph{differences} between curves identify differences
+in the learned response functions, while \emph{levels} inherit the reference population's
+covariate mix and should be read only relative to one another. SATO-conditioned partial dependence (replication
 materials) confirms the composition mechanism of \citet{sancap2024scurves}: within every regime,
 higher-SATO tertiles trace steeper curves. The decomposition thus reconciles the composition
 view with the observation of \citet{katz2024models} that late-2025 realized S-curves exceed
